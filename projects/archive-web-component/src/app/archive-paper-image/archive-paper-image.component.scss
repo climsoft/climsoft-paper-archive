@@ -1,0 +1,40 @@
+//@import "~node_modules/@coreui/coreui/scss/coreui";
+
+.container {
+    margin-top: 50px;
+}
+
+c-nav a {
+    font-size: 13px;
+}
+.p-3 {
+    font-size: 13px !important;
+}
+
+.page-ctrl {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+    margin-top: 50px;
+    //align-items: flex-end;
+}
+
+.get_image {
+    cursor: pointer;
+}
+
+.img-card {
+    width: 550px;
+    height: 550px;
+    background-color: rgb(235, 235, 235);
+    margin-bottom: 15px;
+}
+
+.rotate-img {
+    font-size: small;
+    background-color: white;
+}
+
+#rotate, #zoom {
+    cursor: pointer;
+}
