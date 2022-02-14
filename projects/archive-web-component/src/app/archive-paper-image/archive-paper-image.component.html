@@ -1,0 +1,84 @@
+<c-container fluid >
+  <c-row>
+    <c-col sm="12" lg="6">
+      <c-nav variant="tabs" class="container">
+          <a [active]="true" role="tab" [cTabContent]="tabContent" [routerLink] [tabPaneIdx]="0" cNavLink>Structured Filenames</a>
+          <a [cTabContent]="tabContent" role="tab" [routerLink] [tabPaneIdx]="1" cNavLink>Unstructured Filenames</a>
+          <a [cTabContent]="tabContent" role="tab" [routerLink] [tabPaneIdx]="2" cNavLink (click)="clearImage()">Retrieve Images</a>
+          <a [cTabContent]="tabContent" role="tab" [routerLink] [tabPaneIdx]="3" cNavLink (click)="getClimData()">Archival List</a>
+        </c-nav>
+        <c-tab-content #tabContent="cTabContent">
+          <c-tab-pane class="p-3" role="tabpanel">
+            This is some placeholder content the <strong>Structured Filenames</strong> tab's associated content. Clicking another tab
+            will toggle the visibility of this one for the next. The tab JavaScript swaps classes to control the
+            content visibility and styling. You can use it with tabs, pills, and any other .nav-powered navigation.
+            <input type="text" />
+          </c-tab-pane>
+          <c-tab-pane class="p-3" role="tabpanel">
+            This is some placeholder content the <strong>Unstructured Filenames</strong> tab's associated content. Clicking another tab
+            will toggle the visibility of this one for the next. The tab JavaScript swaps classes to control the
+            content visibility and styling. You can use it with tabs, pills, and any other .nav-powered navigation.
+          </c-tab-pane>
+          <c-tab-pane class="p-3" role="tabpanel">
+            This is some placeholder content the <strong>Retrieve Images</strong> tab's associated content. Clicking another
+            tab will toggle the visibility of this one for the next. The tab JavaScript swaps classes to control the
+            content visibility and styling. You can use it with tabs, pills, and any other .nav-powered navigation.
+          </c-tab-pane>
+          <c-tab-pane class="p-3" role="tabpanel">
+            <table class="table" *ngIf="collection">
+              <thead>
+                  <tr>
+                      <td><strong>StationId</strong></td>
+                      <td><strong>FormId</strong></td>
+                      <td><strong>Form DateTime</strong></td>
+                      <td><strong>Image</strong></td>
+                  </tr>
+              </thead>
+              <tbody *ngFor="let item of collection | paginate: config"
+              appHighlight class="get_image" (click)="getImage(item.image)">
+                  <tr>
+                      <td>{{item.stationid}}</td>
+                      <td>{{item.formid}}</td>
+                      <td>{{item.form_datetime | date:'short'}}</td>
+                      <td><a>{{item.image}}</a></td>
+                  </tr>
+              </tbody>
+          </table> 
+          <div class="page-ctrl" *ngIf="collection.length > 0">
+            <pagination-controls
+                id="archiveimage" 
+                (pageChange)="pageChanged($event)"
+                [maxSize]="maxSize"
+                [directionLinks]="directionLinks"
+                [autoHide]="autoHide"
+                [responsive]="responsive"
+                [previousLabel]="labels.previousLabel"
+                [nextLabel]="labels.nextLabel"
+                [screenReaderPaginationLabel]="labels.screenReaderPaginationLabel"
+                [screenReaderPageLabel]="labels.screenReaderPageLabel"
+                [screenReaderCurrentLabel]="labels.screenReaderCurrentLabel"
+            >
+            </pagination-controls>
+            <p class="count" *ngIf="count > 1"><strong>{{collection.length}}</strong> results</p>
+            <p class="count" *ngIf="count <= 1"><strong>{{collection.length}}</strong> result</p>
+        </div>           
+        </c-tab-pane>
+        </c-tab-content>
+      </c-col>
+      <c-col sm="12" lg="6" class="container"> 
+        <fieldset>
+          <div class="img-card">
+            <c-col sm="12">
+              <div class="row rotate-img">
+                <div class='col-sm-6' (click)="rotateImage()"><span id="rotate">Rotate Image</span></div>
+                <div class='col-sm-6'><span id="zoom" style="float: right;">Zoom Image</span></div>
+              </div>
+            </c-col>
+            <c-card  *ngIf="singleImage">
+              <img cCardImg="top" src="{{singleImage}}" class="archive-img" alt="" />
+            </c-card>
+          </div>
+      </fieldset>
+      </c-col>
+    </c-row>
+</c-container>
