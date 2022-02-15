@@ -35,6 +35,7 @@ import { RemoveHighlightDirective } from './remove-highlight.directive';
     AppRoutingModule,
     NgxPaginationModule,
     ModalModule
+    NgxPaginationModule
   ],
   entryComponents: [ArchivePaperImageComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
