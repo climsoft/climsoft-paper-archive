@@ -1,10 +1,12 @@
 import { NgModule, DoBootstrap, Injector, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { createCustomElement } from '@angular/elements';
 import { TabsModule } from '../coreui/tabs';
 import { NavModule } from '../coreui/nav';
 import { GridModule } from '../coreui/grid';
 import { NgxPaginationModule } from 'ngx-pagination';
+import { ModalModule } from '../coreui/modal';
 
 
 import { AppComponent } from './app.component';
@@ -26,11 +28,13 @@ import { RemoveHighlightDirective } from './remove-highlight.directive';
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     TabsModule,
     NavModule,
     GridModule,
     AppRoutingModule,
-    NgxPaginationModule
+    NgxPaginationModule,
+    ModalModule
   ],
   entryComponents: [ArchivePaperImageComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],

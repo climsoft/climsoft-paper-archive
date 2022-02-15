@@ -68,10 +68,10 @@
       <c-col sm="12" lg="6" class="container"> 
         <fieldset>
           <div class="img-card">
-            <c-col sm="12">
+            <c-col sm="12" *ngIf="singleImage">
               <div class="row rotate-img">
                 <div class='col-sm-6' (click)="rotateImage()"><span id="rotate">Rotate Image</span></div>
-                <div class='col-sm-6'><span id="zoom" style="float: right;">Zoom Image</span></div>
+                <div class='col-sm-6'><span id="zoom" style="float: right;" [cModalToggle]="modalXl.id" cButton>Zoom Image</span></div>
               </div>
             </c-col>
             <c-card  *ngIf="singleImage">
@@ -81,4 +81,10 @@
       </fieldset>
       </c-col>
     </c-row>
+
+    <c-modal #modalXl id="modalXl" size="lg">
+      <c-modal-body >
+        <img cCardImg="top" src="{{zoomedImage}}" class="archive-img" alt="" />
+      </c-modal-body>
+    </c-modal>
 </c-container>
