@@ -35,6 +35,8 @@ export class ArchivePaperImageComponent implements OnInit {
 
   singleImage?: string;
 
+  zoomedImage!: string;
+
   // Customize ngx-pagination
   public maxSize: number = 7;
 
@@ -78,7 +80,7 @@ export class ArchivePaperImageComponent implements OnInit {
     })
   }
 
-  
+
   clearImage() {
     return this.singleImage = '';
   }
@@ -86,9 +88,14 @@ export class ArchivePaperImageComponent implements OnInit {
 
   getImage(imageId: string) {
     const getOneImage = this.collection.filter((item) => item.image == imageId)
-    return this.singleImage = getOneImage[0].image;
-
+    this.singleImage = getOneImage[0].image;
+    this.zoomedImage = getOneImage[0].zoom_image;
   }
+
+  // getZoomedImage(imageId: string) {
+  //   const getOneImage = this.collection.filter((item) => item.zoom_image == imageId)
+  //   return this.zoomedImage = getOneImage[0].image;
+  // }
 
 
   rotationAmount: number = 0;
