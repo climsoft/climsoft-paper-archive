@@ -3,6 +3,7 @@ import {trigger, state, style, animate, transition} from '@angular/animations';
 
 import { ArchiveListService } from '../services/archive-list.service';
 import { Archive } from '../shared/archive-type';
+import { Observable } from 'rxjs';
 
 
 @Component({
@@ -22,16 +23,32 @@ import { Archive } from '../shared/archive-type';
 })
 export class ArchivePaperImageComponent implements OnInit {
 
-  archive?: Archive[];
+  //archive?: Archive[];
+  stationid!: string;
+  formid!: string;
+  year!: string;
+  month!: string;
+  day!: string;
+  hour!: string;
+  date!: Date;
+
   errMess?: string;
+
+  spin?: boolean = true;
+  delete_spinner?: boolean = true;
+  toggle: string = '';
 
   count: any;
 
   page: number = 1;
 
-  collection: Array<any> = [];
+  page_2: number = 1;
+
+  //collection: Array<any> = [];
+  collection: Archive[] = [];
 
   config: any;
+  config_2: any;
 
   singleImage?: string;
 
@@ -39,6 +56,8 @@ export class ArchivePaperImageComponent implements OnInit {
 
   // Customize ngx-pagination
   public maxSize: number = 7;
+
+  public maxSize_2: number = 4;
 
   public directionLinks: boolean = true;
 
@@ -54,6 +73,14 @@ export class ArchivePaperImageComponent implements OnInit {
     screenReaderCurrentLabel: `You're on page ${this.page}`,
   };
 
+  public labels_2: any = {
+    previousLabel: 'Previous',
+    nextLabel: 'Next',
+    screenReaderPaginationLabel: 'Pagination',
+    screenReaderPageLabel: 'page',
+    screenReaderCurrentLabel: `You're on page ${this.page_2}`,
+  };
+
 
 
   constructor(private archiveListService: ArchiveListService,
@@ -63,6 +90,10 @@ export class ArchivePaperImageComponent implements OnInit {
     this.config.currentPage = event;
   }
 
+  pageChanged_2(event: any) {
+    this.config_2.currentPage = event;
+  }
+
   ngOnInit(): void {
     this.config = {
       id: 'archiveimage',
@@ -70,32 +101,47 @@ export class ArchivePaperImageComponent implements OnInit {
       currentPage: this.page,
       totalItems: this.count,
     };
+
+    this.config_2 = {
+      id: 'retrieveimage',
+      itemsPerPage: 1,
+      currentPage: this.page_2,
+      totalItems: this.count,
+    };
   }
 
   getClimData(): void {
     this.archiveListService.getClimateData()
-    .subscribe(list => {
-      this.count = list.length;
-      this.collection = list
+    .subscribe({
+      next: list => {
+        this.count = list.length;
+        this.collection = list
+        let date = this.collection[0].form_datetime
+        //console.log('date ',Date.parse(date))
+      },
+      error: () => console.error()
+      
     })
   }
 
 
   clearImage() {
-    return this.singleImage = '';
+    this.singleImage = '';
+    this.getClimData()
   }
 
 
   getImage(imageId: string) {
-    const getOneImage = this.collection.filter((item) => item.image == imageId)
-    this.singleImage = getOneImage[0].image;
-    this.zoomedImage = getOneImage[0].zoom_image;
-  }
 
-  // getZoomedImage(imageId: string) {
-  //   const getOneImage = this.collection.filter((item) => item.zoom_image == imageId)
-  //   return this.zoomedImage = getOneImage[0].image;
-  // }
+    this.singleImage = ''
+    const getOneImage = this.collection!.filter((item) => item.image == imageId)
+
+    setTimeout(() => {
+      this.singleImage = getOneImage[0].image;
+      this.zoomedImage = getOneImage[0].zoom_image;
+    },3000)
+    
+  }
 
 
   rotationAmount: number = 0;
@@ -105,6 +151,83 @@ export class ArchivePaperImageComponent implements OnInit {
 
   }
 
+
+  onClick() {
+    this.singleImage = ''
+    this.spin = false;
+    
+    this.stationid = (<HTMLInputElement>document.getElementById("stationid")).value
+    this.formid = (<HTMLInputElement>document.getElementById("formid")).value
+    this.year = (<HTMLInputElement>document.getElementById("year")).value
+    this.month = (<HTMLInputElement>document.getElementById("month")).value
+    this.day = (<HTMLInputElement>document.getElementById("day")).value
+    this.hour = (<HTMLInputElement>document.getElementById("hour")).value
+
+    this.date = new Date(parseInt(this.year), parseInt(this.month), parseInt(this.day), parseInt(this.hour))
+    let myform = {
+      stationid: this.stationid,
+      formid: this.formid,
+      date: this.date
+    }
+    console.log('myform ',myform)
+
+    this.archiveListService.findClimateData(myform)
+    .subscribe({
+      next: res => {
+
+        setTimeout(() => {
+          this.spin = true;
+          this.singleImage = res.image;
+          this.zoomedImage = res.zoom_image;
+        },3000)
+        
+      },
+      error: error => {
+        console.log(error)
+        this.spin = true;
+        this.errMess = error;
+        
+      }
+    })
+  }
+
+  removeClimateData() {
+
+    this.delete_spinner = false
+
+    this.stationid = (<HTMLInputElement>document.getElementById("stationid")).value
+    this.formid = (<HTMLInputElement>document.getElementById("formid")).value
+    this.year = (<HTMLInputElement>document.getElementById("year")).value
+    this.month = (<HTMLInputElement>document.getElementById("month")).value
+    this.day = (<HTMLInputElement>document.getElementById("day")).value
+    this.hour = (<HTMLInputElement>document.getElementById("hour")).value
+
+    this.date = new Date(parseInt(this.year), parseInt(this.month), parseInt(this.day), parseInt(this.hour))
+    let myform = {
+      stationid: this.stationid,
+      formid: this.formid,
+      date: this.date
+    }
+
+    this.archiveListService.deleteClimateData(myform)
+    .subscribe({
+      next: res => {
+        setTimeout(() => {
+          this.delete_spinner = true;
+          this.collection = []
+          this.collection = res;
+          //this.toggle = 'staticBackdropModal.id'
+        },3000)
+        
+      },
+      error: error => {
+        console.log(error)
+        this.delete_spinner = true
+        this.errMess = error
+      }
+    })
+
+  }
 
 }
 

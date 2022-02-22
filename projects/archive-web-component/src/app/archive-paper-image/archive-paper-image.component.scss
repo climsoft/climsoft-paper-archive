@@ -1,14 +1,21 @@
 //@import "~node_modules/@coreui/coreui/scss/coreui";
 
-.container {
-    margin-top: 50px;
-}
+// .container {
+//     margin-top: 50px;
+// }
 
 c-nav a {
     font-size: 13px;
 }
 .p-3 {
     font-size: 13px !important;
+}
+
+@media (max-width: 400px) {
+    c-nav a {
+        font-size: 15px;
+    }
+    
 }
 
 .page-ctrl {
@@ -37,4 +44,22 @@ c-nav a {
 
 #rotate, #zoom {
     cursor: pointer;
+}
+
+.stationid {
+    width: 300px;
+}
+
+#retrieve-image {
+    display: flex;
+    flex-flow: column;
+}
+
+.retrieve-image {
+    width: 50%;
+    margin-bottom: 10px;
+}
+
+#spinner {
+    text-align: center;
 }

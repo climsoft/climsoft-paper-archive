@@ -1,11 +1,11 @@
-<c-container fluid >
+<c-container fluid>
   <c-row>
-    <c-col sm="12" lg="6">
-      <c-nav variant="tabs" class="container">
-          <a [active]="true" role="tab" [cTabContent]="tabContent" [routerLink] [tabPaneIdx]="0" cNavLink>Structured Filenames</a>
-          <a [cTabContent]="tabContent" role="tab" [routerLink] [tabPaneIdx]="1" cNavLink>Unstructured Filenames</a>
-          <a [cTabContent]="tabContent" role="tab" [routerLink] [tabPaneIdx]="2" cNavLink (click)="clearImage()">Retrieve Images</a>
-          <a [cTabContent]="tabContent" role="tab" [routerLink] [tabPaneIdx]="3" cNavLink (click)="getClimData()">Archival List</a>
+      <c-col sm="12" lg="6" style="margin-top: 50px;">
+        <c-nav variant="tabs">
+          <a [active]="true" role="tab" [cTabContent]="tabContent" [tabPaneIdx]="0" cNavLink>Structured Filenames</a>
+          <a [cTabContent]="tabContent" role="tab" [tabPaneIdx]="1" cNavLink>Unstructured Filenames</a>
+          <a [cTabContent]="tabContent" role="tab" [tabPaneIdx]="2" cNavLink (click)="clearImage()">Retrieve Images</a>
+          <a [cTabContent]="tabContent" role="tab" [tabPaneIdx]="3" cNavLink (click)="getClimData()">Archival List</a>
         </c-nav>
         <c-tab-content #tabContent="cTabContent">
           <c-tab-pane class="p-3" role="tabpanel">
@@ -19,11 +19,149 @@
             will toggle the visibility of this one for the next. The tab JavaScript swaps classes to control the
             content visibility and styling. You can use it with tabs, pills, and any other .nav-powered navigation.
           </c-tab-pane>
+
           <c-tab-pane class="p-3" role="tabpanel">
-            This is some placeholder content the <strong>Retrieve Images</strong> tab's associated content. Clicking another
-            tab will toggle the visibility of this one for the next. The tab JavaScript swaps classes to control the
-            content visibility and styling. You can use it with tabs, pills, and any other .nav-powered navigation.
+            <form #myform cForm *ngFor="let item of collection | paginate: config_2">
+
+              <legend>Image Details</legend>
+              <c-row class="mb-3">
+                  <label cLabel="col" for="stationid">Station ID</label>
+                  <c-col [sm]="10" [md]="7">
+                    <input cFormControl
+                      aria-label="Station ID input"
+                      id="stationid"
+                      name="stationid"
+                      placeholder=""
+                      type="text"
+                      sizing="sm"
+                      value={{item.stationid}}
+                    />
+                  </c-col>
+              </c-row>
+
+              <c-row class="mb-3">
+                <label cLabel="col" for="formid">Form ID</label>
+                <c-col [sm]="10" [md]="7">
+                  <input cFormControl
+                    aria-label="Form ID input"
+                    id="formid"
+                    name="formid"
+                    placeholder=""
+                    type="text"
+                    sizing="sm"
+                    value={{item.formid}}
+                  />
+                </c-col>
+              </c-row>
+
+              <c-row class="mb-3">
+                <label cLabel="col" for="year">Year</label>
+                <c-col [sm]="10" [md]="4">
+                  <input cFormControl
+                    aria-label="Year input"
+                    id="year"
+                    name="year"
+                    placeholder=""
+                    type="text"
+                    sizing="sm"
+                    value="{{item.form_datetime | date:'yyyy'}}"
+                  />
+                </c-col>
+              </c-row>
+
+              <c-row class="mb-3">
+                <label cLabel="col" for="month">Month</label>
+                <c-col [sm]="10" [md]="4">
+                  <input cFormControl
+                    aria-label="Month input"
+                    id="month"
+                    name="month"
+                    placeholder=""
+                    type="text"
+                    sizing="sm"
+                    value="{{item.form_datetime | date:'MM'}}"
+                  />
+                </c-col>
+              </c-row>
+
+              <c-row class="mb-3">
+                <label cLabel="col" for="day">Day</label>
+                <c-col [sm]="10" [md]="4">
+                  <input cFormControl
+                    aria-label="Day input"
+                    id="day"
+                    name="day"
+                    placeholder=""
+                    type="text"
+                    sizing="sm"
+                    value="{{item.form_datetime | date:'dd'}}"
+                  />
+                </c-col>
+              </c-row>
+
+              <c-row class="mb-3">
+                <label cLabel="col" for="hour">Hour</label>
+                <c-col [sm]="10" [md]="4">
+                  <input cFormControl
+                    aria-label="Hour input"
+                    id="hour"
+                    name="hour"
+                    placeholder=""
+                    type="text"
+                    sizing="sm"
+                    value="{{item.form_datetime | date:'H'}}"
+                  />
+                </c-col>
+              </c-row>
+
+              <div class="page-ctrl" *ngIf="collection.length > 0">
+                <pagination-controls
+                  id="retrieveimage" 
+                  (pageChange)="pageChanged_2($event)"
+                  [maxSize]="maxSize_2"
+                  [directionLinks]="directionLinks"
+                  [autoHide]="autoHide"
+                  [responsive]="responsive"
+                  [previousLabel]="labels_2.previousLabel"
+                  [nextLabel]="labels_2.nextLabel"
+                  [screenReaderPaginationLabel]="labels_2.screenReaderPaginationLabel"
+                  [screenReaderPageLabel]="labels_2.screenReaderPageLabel"
+                  [screenReaderCurrentLabel]="labels_2.screenReaderCurrentLabel"
+                >
+                </pagination-controls>
+  
+              </div>
+  
+              <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <button type="button" (click)="onClick()" cButton color="secondary" size="sm">
+                  <c-spinner [hidden]="spin" size="sm"></c-spinner>
+                  View Image
+                </button>
+                <button cButton color="secondary" size="sm">Update</button>
+                <button type="button" [cModalToggle]="staticBackdropModal.id" cButton color="secondary" size="sm">Delete</button>
+              </div>
+              
+            </form>
+
+            <c-modal #staticBackdropModal backdrop="static" id="staticBackdropModal">
+              <c-modal-header>
+                <h5 cModalTitle>Delete Climate Data</h5>
+                <button [cModalToggle]="staticBackdropModal.id" cButtonClose></button>
+              </c-modal-header>
+              <c-modal-body>You&#39;re about to delete data, are you sure you want to proceed?</c-modal-body>
+              <c-modal-footer>
+                <button [cModalToggle]="staticBackdropModal.id" cButton color="secondary">
+                  Cancel
+                </button>
+                <button cButton color="primary" (click)="removeClimateData()">
+                  <c-spinner [hidden]="delete_spinner" aria-hidden="true" size="sm"></c-spinner>
+                  Delete
+                </button>
+              </c-modal-footer>
+            </c-modal>
+
           </c-tab-pane>
+
           <c-tab-pane class="p-3" role="tabpanel">
             <table class="table" *ngIf="collection">
               <thead>
@@ -43,9 +181,9 @@
                       <td><a>{{item.image}}</a></td>
                   </tr>
               </tbody>
-          </table> 
-          <div class="page-ctrl" *ngIf="collection.length > 0">
-            <pagination-controls
+            </table> 
+            <div class="page-ctrl" *ngIf="collection.length > 0">
+              <pagination-controls
                 id="archiveimage" 
                 (pageChange)="pageChanged($event)"
                 [maxSize]="maxSize"
@@ -57,28 +195,30 @@
                 [screenReaderPaginationLabel]="labels.screenReaderPaginationLabel"
                 [screenReaderPageLabel]="labels.screenReaderPageLabel"
                 [screenReaderCurrentLabel]="labels.screenReaderCurrentLabel"
-            >
-            </pagination-controls>
-            <p class="count" *ngIf="count > 1"><strong>{{collection.length}}</strong> results</p>
-            <p class="count" *ngIf="count <= 1"><strong>{{collection.length}}</strong> result</p>
-        </div>           
-        </c-tab-pane>
+              >
+              </pagination-controls>
+              <p class="count" *ngIf="count > 1"><strong>{{collection.length}}</strong> results</p>
+              <p class="count" *ngIf="count <= 1"><strong>{{collection.length}}</strong> result</p>
+            </div>           
+          </c-tab-pane>
         </c-tab-content>
       </c-col>
-      <c-col sm="12" lg="6" class="container"> 
-        <fieldset>
+      <c-col sm="12" lg="6" style="margin-top: 50px;"> 
           <div class="img-card">
+            <c-col id="spinner" sm="12" [hidden]="spin">
+              <c-spinner style="margin-top: 40%;" color="secondary"></c-spinner>
+            </c-col>
+            
             <c-col sm="12" *ngIf="singleImage">
               <div class="row rotate-img">
                 <div class='col-sm-6' (click)="rotateImage()"><span id="rotate">Rotate Image</span></div>
-                <div class='col-sm-6'><span id="zoom" style="float: right;" [cModalToggle]="modalXl.id" cButton>Zoom Image</span></div>
+                <div class='col-sm-6'><span id="zoom" style="float: right;" [cModalToggle]="modalXl.id">Zoom Image</span></div>
               </div>
             </c-col>
             <c-card  *ngIf="singleImage">
               <img cCardImg="top" src="{{singleImage}}" class="archive-img" alt="" />
             </c-card>
           </div>
-      </fieldset>
       </c-col>
     </c-row>
 
