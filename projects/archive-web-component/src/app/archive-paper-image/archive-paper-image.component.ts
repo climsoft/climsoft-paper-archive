@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, ElementRef, AfterViewInit } from '@angular/core';
 import {trigger, state, style, animate, transition} from '@angular/animations';
 
 import { ArchiveListService } from '../services/archive-list.service';
@@ -32,9 +32,19 @@ export class ArchivePaperImageComponent implements OnInit {
   hour!: string;
   date!: Date;
 
+  u_stationid!: string;
+  u_formid!: string;
+  u_year!: string;
+  u_month!: string;
+  u_day!: string;
+  u_hour!: string;
+  u_date!: Date;
+
   errMess?: string;
+  fileUploadErrMess?: string;
 
   spin?: boolean = true;
+  modalSpinner?: boolean = false;
   delete_spinner?: boolean = true;
   toggle: string = '';
 
@@ -46,11 +56,16 @@ export class ArchivePaperImageComponent implements OnInit {
 
   //collection: Array<any> = [];
   collection: Archive[] = [];
+  selectedFiles: Array<any> = [];
+  selectedFile?: File;
+  unstructuredFileTarget?: any;
 
   config: any;
   config_2: any;
 
   singleImage?: string;
+
+  modalImage?: string;
 
   zoomedImage!: string;
 
@@ -108,6 +123,67 @@ export class ArchivePaperImageComponent implements OnInit {
       currentPage: this.page_2,
       totalItems: this.count,
     };
+
+  }
+
+  ngAfterViewInit(): void {
+    
+  }
+
+
+  fileSelected($event:any): void {
+    
+    //this.selectedFile = <File>$event.target.files[0];
+
+    let target = $event.target.files;
+    for (let i = 0; i < target.length; i++) {
+
+      // var validExt = [ 'jpeg', 'jpg', 'png', 'webp' ];
+      // var ext = target[i].name.split('.').pop();
+      // var filename = target[i].name.split('-');
+      // console.log('ext ',ext)
+      // console.log('filename ',filename)
+
+      // if (filename.length < 3) {
+      //   this.fileUploadErrMess = "One or more Filename structure not allowed!";
+      //   console.log(this.fileUploadErrMess)
+      //   return
+      // }
+
+      // if (filename[2].length !== 12) {
+      //   console.log(filename[2].length)
+      //   this.fileUploadErrMess = "One or more Filename structure not allowed!";
+      //   console.log(this.fileUploadErrMess)
+      //   return
+      // }
+
+      // if (!validExt.includes(ext)) {
+      //   this.fileUploadErrMess = "File type not allowed!";
+      //   console.log(this.fileUploadErrMess)
+      //   return
+      // }
+
+      this.selectedFiles.push(target[i])
+
+    }
+  }
+
+  uploadStructuredFilenames(): void {
+    console.log('doc upload ')
+    this.archiveListService.onUpload(this.selectedFiles)
+    //this.archiveListService.uploader(this.selectedFile)
+    .subscribe({
+      next: (res:any) => console.log("res ",res),
+      error: (error:any) => console.log("error ",error)
+    })
+  }
+  
+  setValue($event:any, index:any){
+
+    if($event.target.checked === false){
+      this.selectedFiles.splice(index, 1)
+      console.log('files ',this.selectedFiles)
+    }
   }
 
   getClimData(): void {
@@ -116,7 +192,7 @@ export class ArchivePaperImageComponent implements OnInit {
       next: list => {
         this.count = list.length;
         this.collection = list
-        let date = this.collection[0].form_datetime
+        //let date = this.collection[0].form_datetime
         //console.log('date ',Date.parse(date))
       },
       error: () => console.error()
@@ -151,6 +227,13 @@ export class ArchivePaperImageComponent implements OnInit {
 
   }
 
+  modalImageRotationAmount: number = 0;
+  rotateModalImage() {
+    this.modalImageRotationAmount +=  45;
+    this.el.nativeElement.querySelector('.archive-img-modal').style.transform = `rotate(${this.modalImageRotationAmount}deg)`;
+
+  }
+
 
   onClick() {
     this.singleImage = ''
@@ -174,7 +257,7 @@ export class ArchivePaperImageComponent implements OnInit {
     this.archiveListService.findClimateData(myform)
     .subscribe({
       next: res => {
-
+        console.log('res ',res)
         setTimeout(() => {
           this.spin = true;
           this.singleImage = res.image;
@@ -189,6 +272,47 @@ export class ArchivePaperImageComponent implements OnInit {
         
       }
     })
+  }
+
+  clickModal() {
+
+    this.modalImage = ''
+    this.modalSpinner = true;
+    
+    this.stationid = (<HTMLInputElement>document.getElementById("stationid")).value
+    this.formid = (<HTMLInputElement>document.getElementById("formid")).value
+    this.year = (<HTMLInputElement>document.getElementById("year")).value
+    this.month = (<HTMLInputElement>document.getElementById("month")).value
+    this.day = (<HTMLInputElement>document.getElementById("day")).value
+    this.hour = (<HTMLInputElement>document.getElementById("hour")).value
+
+    this.date = new Date(parseInt(this.year), parseInt(this.month), parseInt(this.day), parseInt(this.hour))
+    let myform = {
+      stationid: this.stationid,
+      formid: this.formid,
+      date: this.date
+    }
+    console.log('myform ',myform)
+
+    this.archiveListService.findClimateData(myform)
+    .subscribe({
+      next: res => {
+        console.log('res ',res)
+        setTimeout(() => {
+          this.modalSpinner = false;
+          this.modalImage = res.image;
+          //this.zoomedImage = res.zoom_image;
+        },3000)
+        
+      },
+      error: error => {
+        console.log(error)
+        this.modalSpinner = false;
+        this.errMess = error;
+        
+      }
+    })
+
   }
 
   removeClimateData() {
@@ -216,7 +340,6 @@ export class ArchivePaperImageComponent implements OnInit {
           this.delete_spinner = true;
           this.collection = []
           this.collection = res;
-          //this.toggle = 'staticBackdropModal.id'
         },3000)
         
       },
@@ -226,6 +349,49 @@ export class ArchivePaperImageComponent implements OnInit {
         this.errMess = error
       }
     })
+
+  }
+
+  unstructuredFileSelected($event:any) {
+
+    this.unstructuredFileTarget = $event.target.files;
+
+    console.log('unstructured target ',this.unstructuredFileTarget)
+
+  }
+
+  onSubmitUnstructured() {
+
+    this.u_stationid = (<HTMLInputElement>document.getElementById("u-stationid")).value
+    this.u_formid = (<HTMLInputElement>document.getElementById("u-formid")).value
+    this.u_year = (<HTMLInputElement>document.getElementById("u-year")).value
+    this.u_month = (<HTMLInputElement>document.getElementById("u-month")).value
+    this.u_day = (<HTMLInputElement>document.getElementById("u-day")).value
+    this.u_hour = (<HTMLInputElement>document.getElementById("u-hour")).value
+
+    this.u_date = new Date(parseInt(this.year), parseInt(this.month), parseInt(this.day), parseInt(this.hour))
+    
+    let myform = {
+      stationid: this.u_stationid,
+      formid: this.u_formid,
+      year: this.u_year,
+      month: this.u_month,
+      day: this.u_day,
+      hour: this.u_hour,
+      file: this.unstructuredFileTarget
+    }
+    console.log('myform ',myform)
+
+    // this.archiveListService.submitUnstructured(myform)
+    // .subscribe({
+    //   next: res => {
+    //     console.log('res ',res)
+        
+    //   },
+    //   error: error => {
+    //     console.log(error)        
+    //   }
+    // })
 
   }
 

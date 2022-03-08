@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { createCustomElement } from '@angular/elements';
 import {FormsModule} from "@angular/forms";
+
 import { TabsModule } from '../coreui/tabs';
 import { NavModule } from '../coreui/nav';
 import { GridModule } from '../coreui/grid';
@@ -11,8 +12,9 @@ import { ModalModule } from '../coreui/modal';
 import { FormModule } from '../coreui/form';
 import { ButtonModule } from '../coreui/button';
 import { SpinnerModule } from '../coreui/spinner';
+import { TableModule } from '../coreui/table';
 
-
+import { HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
 import { ArchivePaperImageComponent } from './archive-paper-image/archive-paper-image.component';
 import { HighlightDirective } from './highlight.directive';
@@ -37,7 +39,9 @@ import { RemoveHighlightDirective } from './remove-highlight.directive';
     FormModule,
     ButtonModule,
     FormsModule,
-    SpinnerModule
+    SpinnerModule,
+    TableModule,
+    HttpClientModule
   ],
   entryComponents: [ArchivePaperImageComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
