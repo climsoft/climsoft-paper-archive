@@ -3,4 +3,5 @@ export interface Archive {
     formid: string;
     form_datetime: string;
     image: string;
+    zoom_image: string;
 };

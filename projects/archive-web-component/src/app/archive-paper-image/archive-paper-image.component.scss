@@ -1,8 +1,4 @@
-//@import "~node_modules/@coreui/coreui/scss/coreui";
 
-.container {
-    margin-top: 50px;
-}
 
 c-nav a {
     font-size: 13px;
@@ -11,10 +7,17 @@ c-nav a {
     font-size: 13px !important;
 }
 
+@media (max-width: 400px) {
+    c-nav a {
+        font-size: 15px;
+    }
+    
+}
+
 .page-ctrl {
     display: flex;
     flex-flow: row;
-    justify-content: space-between;
+    //justify-content: space-between;
     margin-top: 50px;
     //align-items: flex-end;
 }
@@ -24,17 +27,92 @@ c-nav a {
 }
 
 .img-card {
-    width: 550px;
-    height: 550px;
-    background-color: rgb(235, 235, 235);
+    width: 100%;
+    //height: 100%;
+    //background-color: rgb(235, 235, 235);
     margin-bottom: 35px;
 }
+
+// @media(min-width:800px) {
+//     // #img-card-col {
+//     //     display: none;
+//     // }
+
+//     .img-card {
+//         height: 100%;
+//         background-color: rgb(235, 235, 235);
+//     }
+// }
 
 .rotate-img {
     font-size: small;
     background-color: white;
 }
 
-#rotate, #zoom {
+.rotate, .zoom {
     cursor: pointer;
+}
+
+.stationid {
+    width: 300px;
+}
+
+#retrieve-image-legend {
+    font-size: 1.5em;
+}
+
+#retrieve-image {
+    display: flex;
+    flex-flow: column;
+}
+
+.retrieve-image {
+    width: 50%;
+    margin-bottom: 10px;
+}
+
+.spinner {
+    text-align: center;
+}
+
+#upload-col {
+    position: relative;
+    margin-top: 20px;
+    border: 1px solid rgb(194, 194, 194);
+    padding: 25px;
+    min-height: 300px;
+}
+
+#archive-btn {
+    position: absolute;
+    bottom: 20px;
+}
+
+#file-list-col {
+    position: relative;
+    margin-bottom: 80px;
+}
+
+#upload-legend {    
+    font-size: 1.5em;
+}
+
+.afu-upload-btn {
+    border-color: #999 !important;
+    background-color: rgb(179, 178, 178) !important;
+}
+
+#desktop-btn {
+    display: none;
+}
+
+
+@media(min-width:900px) {
+    #modal-btn {
+        display: none
+    }
+
+    #desktop-btn {
+        display: block;
+    }
 }

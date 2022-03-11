@@ -1,86 +1,482 @@
-<c-container fluid >
-  <c-row>
-    <c-col sm="12" lg="6">
-      <c-nav variant="tabs" class="container">
-          <a [active]="true" role="tab" [cTabContent]="tabContent" [routerLink] [tabPaneIdx]="0" cNavLink>Structured Filenames</a>
-          <a [cTabContent]="tabContent" role="tab" [routerLink] [tabPaneIdx]="1" cNavLink>Unstructured Filenames</a>
-          <a [cTabContent]="tabContent" role="tab" [routerLink] [tabPaneIdx]="2" cNavLink (click)="clearImage()">Retrieve Images</a>
-          <a [cTabContent]="tabContent" role="tab" [routerLink] [tabPaneIdx]="3" cNavLink (click)="getClimData()">Archival List</a>
+<c-container fluid>
+  <!-- <c-row> -->
+      <!-- <c-col style="margin-top: 50px;"> -->
+        <c-nav variant="tabs" style="margin-top: 50px;">
+          <a [active]="true" role="tab" [cTabContent]="tabContent" [tabPaneIdx]="0" cNavLink (click)="clearImage()">Structured Filenames</a>
+          <a [cTabContent]="tabContent" role="tab" [tabPaneIdx]="1" cNavLink>Unstructured Filenames</a>
+          <a [cTabContent]="tabContent" role="tab" [tabPaneIdx]="2" cNavLink (click)="clearImage()">Retrieve Images</a>
+          <a [cTabContent]="tabContent" role="tab" [tabPaneIdx]="3" cNavLink (click)="getClimData()">Archival List</a>
         </c-nav>
         <c-tab-content #tabContent="cTabContent">
           <c-tab-pane class="p-3" role="tabpanel">
-            This is some placeholder content the <strong>Structured Filenames</strong> tab's associated content. Clicking another tab
-            will toggle the visibility of this one for the next. The tab JavaScript swaps classes to control the
-            content visibility and styling. You can use it with tabs, pills, and any other .nav-powered navigation.
-            <input type="text" />
+
+            <c-row class="mb-3">
+              <c-col sm="12" md="6">
+                <br>
+                <br>
+                <fieldset>
+                  <legend id="upload-legend">Image Files</legend>
+                  <p>Filename Structure: &nbsp;&nbsp;&nbsp;&nbsp;<strong>StnID-FormID-YYYYMMDDHH</strong></p>
+                  <br>
+                  <br>
+                  <br>
+                  <input 
+                      multiple
+                      style="display: none;" 
+                      type="file" 
+                      (change)="fileSelected($event)" 
+                      #fileInput/>
+                    <button type="button" cButton (click)="fileInput.click()">Pick File(s)</button>
+
+                  <c-col sm="12" id="upload-col">
+                    <p>Files</p>
+                    <c-col id="file-list-col">
+                      <div style="color: red;" *ngIf="fileUploadErrMess">{{fileUploadErrMess}}</div>
+                      <p *ngIf="selectedFile">{{selectedFile.name}}</p>
+                      <ul *ngFor="let file of selectedFiles; let i = index">
+                        <li style="list-style: none;">
+                          <c-form-check>
+                            <input (change)="setValue($event, i)" [checked]="true" cFormCheckInput id="checky" type="checkbox" />
+                          </c-form-check>
+                          &nbsp;&nbsp;&nbsp;&nbsp;
+                          {{file.name}}
+                        </li>
+                      </ul>
+
+                    </c-col>
+                    <button id="archive-btn" type="button" color="secondary" [disabled]="selectedFiles.length <= 0" cButton (click)="uploadStructuredFilenames()">Archive</button>
+                  </c-col>
+                </fieldset>
+              </c-col>
+            </c-row>
           </c-tab-pane>
+
           <c-tab-pane class="p-3" role="tabpanel">
-            This is some placeholder content the <strong>Unstructured Filenames</strong> tab's associated content. Clicking another tab
-            will toggle the visibility of this one for the next. The tab JavaScript swaps classes to control the
-            content visibility and styling. You can use it with tabs, pills, and any other .nav-powered navigation.
+            
+            <c-row style="margin-top: 50px;" class="mb-3">
+              <c-col sm="12" md="6">
+
+                <form #unstructuredform cForm>
+
+                  <c-row class="mb-3">
+                    <c-col [sm]="12">
+                      <input 
+                        cFormControl 
+                        id="formFile" 
+                        type="file" 
+                        sizing="sm"
+                        (change)="unstructuredFileSelected($event)"  />
+                    </c-col>
+                  </c-row>
+
+                  <c-row class="mb-3">
+                      <label cLabel="col" for="u-stationid">Station ID</label>
+                      <c-col [sm]="10" [md]="7">
+                        <input cFormControl
+                          aria-label="Station ID input"
+                          id="u-stationid"
+                          name="u-stationid"
+                          placeholder=""
+                          type="text"
+                          sizing="sm"
+                          required
+                        />
+                      </c-col>
+                  </c-row>
+
+                  <c-row class="mb-3">
+                    <label cLabel="col" for="u-formid">Form ID</label>
+                    <c-col [sm]="10" [md]="7">
+                      <input cFormControl
+                        aria-label="Form ID input"
+                        id="u-formid"
+                        name="u-formid"
+                        placeholder=""
+                        type="text"
+                        sizing="sm"
+                        required
+                      />
+                    </c-col>
+                  </c-row>
+
+                  <c-row class="mb-3">
+                    <label cLabel="col" for="u-year">Year</label>
+                    <c-col [sm]="10" [md]="7">
+                      <input cFormControl
+                        aria-label="Year input"
+                        id="u-year"
+                        name="u-year"
+                        placeholder=""
+                        type="text"
+                        sizing="sm"
+                        required
+                      />
+                    </c-col>
+                  </c-row>
+
+                  <c-row class="mb-3">
+                    <label cLabel="col" for="u-month">Month</label>
+                    <c-col [sm]="10" [md]="7">
+                      <select id="u-month" aria-label="Select month of the year" cSelect required>
+                        <option>Select month</option>
+                        <option value="01">01</option>
+                        <option value="02">02</option>
+                        <option value="03">03</option>
+                        <option value="04">04</option>
+                        <option value="05">05</option>
+                        <option value="06">06</option>
+                        <option value="07">07</option>
+                        <option value="08">08</option>
+                        <option value="09">09</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                      </select>
+                    </c-col>
+                  </c-row>
+
+                  <c-row class="mb-3">
+                    <label cLabel="col" for="u-day">Day</label>
+                    <c-col [sm]="10" [md]="7">
+                      <select id="u-day" aria-label="Select day of the month" cSelect required>
+                        <option>Select day</option>
+                        <option value="01">01</option>
+                        <option value="02">02</option>
+                        <option value="03">03</option>
+                        <option value="04">04</option>
+                        <option value="05">05</option>
+                        <option value="06">06</option>
+                        <option value="07">07</option>
+                        <option value="08">08</option>
+                        <option value="09">09</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                        <option value="23">23</option>
+                        <option value="24">24</option>
+                        <option value="25">25</option>
+                        <option value="26">26</option>
+                        <option value="27">27</option>
+                        <option value="28">28</option>
+                        <option value="29">29</option>
+                        <option value="30">30</option>
+                        <option value="31">31</option>
+                      </select>
+                    </c-col>
+                  </c-row>
+
+                  <c-row class="mb-3">
+                    <label cLabel="col" for="u-hour">Hour</label>
+                    <c-col [sm]="10" [md]="7">
+                      <select id="u-hour" aria-label="Select hour of the day" cSelect required>
+                        <option>Select hour</option>
+                        <option value="01">01</option>
+                        <option value="02">02</option>
+                        <option value="03">03</option>
+                        <option value="04">04</option>
+                        <option value="05">05</option>
+                        <option value="06">06</option>
+                        <option value="07">07</option>
+                        <option value="08">08</option>
+                        <option value="09">09</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                        <option value="23">23</option>
+                        <option value="24">24</option>
+                      </select>
+                    </c-col>
+                  </c-row>
+
+                  <button class="archive-btn" type="button" (click)="onSubmitUnstructured()" color="secondary" cButton >Archive</button>
+                
+                </form>
+              </c-col>
+            </c-row>
           </c-tab-pane>
+
           <c-tab-pane class="p-3" role="tabpanel">
-            This is some placeholder content the <strong>Retrieve Images</strong> tab's associated content. Clicking another
-            tab will toggle the visibility of this one for the next. The tab JavaScript swaps classes to control the
-            content visibility and styling. You can use it with tabs, pills, and any other .nav-powered navigation.
+            <c-row>
+              <c-col>
+                <form #myform cForm *ngFor="let item of collection | paginate: config_2">
+
+                  <legend id="retrieve-image-legend">Image Details</legend>
+                  <c-row class="mb-3">
+                      <label cLabel="col" for="stationid">Station ID</label>
+                      <c-col [sm]="10" [md]="7">
+                        <input cFormControl
+                          aria-label="Station ID input"
+                          id="stationid"
+                          name="stationid"
+                          placeholder=""
+                          type="text"
+                          sizing="sm"
+                          value={{item.stationid}}
+                        />
+                      </c-col>
+                  </c-row>
+
+                  <c-row class="mb-3">
+                    <label cLabel="col" for="formid">Form ID</label>
+                    <c-col [sm]="10" [md]="7">
+                      <input cFormControl
+                        aria-label="Form ID input"
+                        id="formid"
+                        name="formid"
+                        placeholder=""
+                        type="text"
+                        sizing="sm"
+                        value={{item.formid}}
+                      />
+                    </c-col>
+                  </c-row>
+
+                  <c-row class="mb-3">
+                    <label cLabel="col" for="year">Year</label>
+                    <c-col [sm]="10" [md]="4">
+                      <input cFormControl
+                        aria-label="Year input"
+                        id="year"
+                        name="year"
+                        placeholder=""
+                        type="text"
+                        sizing="sm"
+                        value="{{item.form_datetime | date:'yyyy'}}"
+                      />
+                    </c-col>
+                  </c-row>
+
+                  <c-row class="mb-3">
+                    <label cLabel="col" for="month">Month</label>
+                    <c-col [sm]="10" [md]="4">
+                      <input cFormControl
+                        aria-label="Month input"
+                        id="month"
+                        name="month"
+                        placeholder=""
+                        type="text"
+                        sizing="sm"
+                        value="{{item.form_datetime | date:'MM'}}"
+                      />
+                    </c-col>
+                  </c-row>
+
+                  <c-row class="mb-3">
+                    <label cLabel="col" for="day">Day</label>
+                    <c-col [sm]="10" [md]="4">
+                      <input cFormControl
+                        aria-label="Day input"
+                        id="day"
+                        name="day"
+                        placeholder=""
+                        type="text"
+                        sizing="sm"
+                        value="{{item.form_datetime | date:'dd'}}"
+                      />
+                    </c-col>
+                  </c-row>
+
+                  <c-row class="mb-3">
+                    <label cLabel="col" for="hour">Hour</label>
+                    <c-col [sm]="10" [md]="4">
+                      <input cFormControl
+                        aria-label="Hour input"
+                        id="hour"
+                        name="hour"
+                        placeholder=""
+                        type="text"
+                        sizing="sm"
+                        value="{{item.form_datetime | date:'H'}}"
+                      />
+                    </c-col>
+                  </c-row>
+
+                  <div class="page-ctrl" *ngIf="collection.length > 0">
+                    <pagination-controls
+                      id="retrieveimage" 
+                      (pageChange)="pageChanged_2($event)"
+                      [maxSize]="maxSize_2"
+                      [directionLinks]="directionLinks"
+                      [autoHide]="autoHide"
+                      [responsive]="responsive"
+                      [previousLabel]="labels_2.previousLabel"
+                      [nextLabel]="labels_2.nextLabel"
+                      [screenReaderPaginationLabel]="labels_2.screenReaderPaginationLabel"
+                      [screenReaderPageLabel]="labels_2.screenReaderPageLabel"
+                      [screenReaderCurrentLabel]="labels_2.screenReaderCurrentLabel"
+                    >
+                    </pagination-controls>
+      
+                  </div>
+      
+                  <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <button id="desktop-btn" type="button" (click)="onClick()" cButton color="secondary" size="sm">
+                      <c-spinner [hidden]="spin" size="sm"></c-spinner>
+                      View Image
+                    </button>
+                    <button id="modal-btn" type="button" (click)="clickModal()" [cModalToggle]="modalXlg.id" cButton color="secondary" size="sm">
+                      <c-spinner [hidden]="spin" size="sm"></c-spinner>
+                      View Image modal
+                    </button>
+                    <button cButton color="secondary" size="sm">Update</button>
+                    <button type="button" [cModalToggle]="staticBackdropModal.id" cButton color="secondary" size="sm">Delete</button>
+                  </div>
+                  
+                </form>
+              </c-col>
+
+              <c-col sm="12" md="6"> 
+                <div class="img-card">
+                  <c-col class="spinner" sm="12" [hidden]="spin">
+                    <c-spinner style="margin-top: 40%;" color="secondary"></c-spinner>
+                  </c-col>
+                  
+                  <c-col sm="12" *ngIf="singleImage">
+                    <div class="row rotate-img">
+                      <div class='col-sm-6' (click)="rotateImage()"><span class="rotate">Rotate Image</span></div>
+                      <div class='col-sm-6'><span class="zoom" style="float: right;" [cModalToggle]="modalXl.id">Zoom Image</span></div>
+                    </div>
+                  </c-col>
+                  <c-card  *ngIf="singleImage">
+                    <img cCardImg="top" src="{{singleImage}}" style="width: 100%;" class="archive-img" alt="" />
+                  </c-card>
+                </div>
+              </c-col>
+
+              <c-modal #modalXlg id="modalXlg" size="lg">
+                <c-modal-body>
+                  <div *ngIf="modalImage" class="row rotate-img" style="margin-bottom: 5px;">
+                    <div class='col-sm-6' (click)="rotateModalImage()"><span class="rotate">Rotate Image</span></div>
+                  </div>
+                  <c-col *ngIf="modalSpinner" class="spinner" sm="12">
+                    <c-spinner style="margin-top: 40%; margin-bottom: 40%;" color="secondary"></c-spinner>
+                  </c-col>
+                  <img cCardImg="top" src="{{modalImage}}" style="width: 100%;" class="archive-img-modal" alt="" />
+                </c-modal-body>
+              </c-modal>
+
+              <c-modal #staticBackdropModal backdrop="static" id="staticBackdropModal">
+                <c-modal-header>
+                  <h5 cModalTitle>Delete Climate Data</h5>
+                  <button [cModalToggle]="staticBackdropModal.id" cButtonClose></button>
+                </c-modal-header>
+                <c-modal-body>You&#39;re about to delete data, are you sure you want to proceed?</c-modal-body>
+                <c-modal-footer>
+                  <button [cModalToggle]="staticBackdropModal.id" cButton color="secondary">
+                    Cancel
+                  </button>
+                  <button cButton color="primary" (click)="removeClimateData()">
+                    <c-spinner [hidden]="delete_spinner" aria-hidden="true" size="sm"></c-spinner>
+                    Delete
+                  </button>
+                </c-modal-footer>
+              </c-modal>
+            
+            </c-row>
           </c-tab-pane>
+
           <c-tab-pane class="p-3" role="tabpanel">
-            <table class="table" *ngIf="collection">
-              <thead>
-                  <tr>
-                      <td><strong>StationId</strong></td>
-                      <td><strong>FormId</strong></td>
-                      <td><strong>Form DateTime</strong></td>
-                      <td><strong>Image</strong></td>
-                  </tr>
-              </thead>
-              <tbody *ngFor="let item of collection | paginate: config"
-              appHighlight class="get_image" (click)="getImage(item.image)">
-                  <tr>
-                      <td>{{item.stationid}}</td>
-                      <td>{{item.formid}}</td>
-                      <td>{{item.form_datetime | date:'short'}}</td>
-                      <td><a>{{item.image}}</a></td>
-                  </tr>
-              </tbody>
-          </table> 
-          <div class="page-ctrl" *ngIf="collection.length > 0">
-            <pagination-controls
-                id="archiveimage" 
-                (pageChange)="pageChanged($event)"
-                [maxSize]="maxSize"
-                [directionLinks]="directionLinks"
-                [autoHide]="autoHide"
-                [responsive]="responsive"
-                [previousLabel]="labels.previousLabel"
-                [nextLabel]="labels.nextLabel"
-                [screenReaderPaginationLabel]="labels.screenReaderPaginationLabel"
-                [screenReaderPageLabel]="labels.screenReaderPageLabel"
-                [screenReaderCurrentLabel]="labels.screenReaderCurrentLabel"
-            >
-            </pagination-controls>
-            <p class="count" *ngIf="count > 1"><strong>{{collection.length}}</strong> results</p>
-            <p class="count" *ngIf="count <= 1"><strong>{{collection.length}}</strong> result</p>
-        </div>           
-        </c-tab-pane>
+            <c-row>
+              <c-col>
+                <table bordered cTable [responsive]="true" *ngIf="collection">
+                  <thead>
+                      <tr>
+                          <th scope="col">StationId</th>
+                          <th scope="col">FormId</th>
+                          <th scope="col">Form DateTime</th>
+                          <th scope="col">Image</th>
+                      </tr>
+                  </thead>
+                  <tbody *ngFor="let item of collection | paginate: config"
+                  appHighlight class="get_image" (click)="getImage(item.image)">
+                      <tr>
+                          <td>{{item.stationid}}</td>
+                          <td>{{item.formid}}</td>
+                          <td>{{item.form_datetime | date:'short'}}</td>
+                          <td><a>{{item.image}}</a></td>
+                      </tr>
+                  </tbody>
+                </table> 
+                <div class="page-ctrl" *ngIf="collection.length > 0">
+                  <pagination-controls
+                    id="archiveimage" 
+                    (pageChange)="pageChanged($event)"
+                    [maxSize]="maxSize"
+                    [directionLinks]="directionLinks"
+                    [autoHide]="autoHide"
+                    [responsive]="responsive"
+                    [previousLabel]="labels.previousLabel"
+                    [nextLabel]="labels.nextLabel"
+                    [screenReaderPaginationLabel]="labels.screenReaderPaginationLabel"
+                    [screenReaderPageLabel]="labels.screenReaderPageLabel"
+                    [screenReaderCurrentLabel]="labels.screenReaderCurrentLabel"
+                  >
+                  </pagination-controls>
+                  <p class="count" *ngIf="count > 1"><strong>{{collection.length}}</strong> results</p>
+                  <p class="count" *ngIf="count <= 1"><strong>{{collection.length}}</strong> result</p>
+                </div>  
+              </c-col> 
+
+              <c-col class="img-card-col"> 
+                <div class="img-card">
+                  <c-col class="spinner" sm="12" [hidden]="spin">
+                    <c-spinner style="margin-top: 40%;" color="secondary"></c-spinner>
+                  </c-col>
+                  
+                  <c-col sm="12" *ngIf="singleImage">
+                    <div class="row rotate-img">
+                      <div class='col-sm-6' (click)="rotateImage()"><span class="rotate">Rotate Image</span></div>
+                      <div class='col-sm-6'><span class="zoom" style="float: right;" [cModalToggle]="modalXl.id">Zoom Image</span></div>
+                    </div>
+                  </c-col>
+                  <c-card  *ngIf="singleImage">
+                    <img cCardImg="top" src="{{singleImage}}" style="width: 100%;" class="archive-img" alt="" />
+                  </c-card>
+                </div>
+            </c-col>
+
+            </c-row>        
+          </c-tab-pane>
         </c-tab-content>
-      </c-col>
-      <c-col sm="12" lg="6" class="container"> 
-        <fieldset>
+      <!-- </c-col> -->
+      <!-- <c-col style="margin-top: 50px;"> 
           <div class="img-card">
+            <c-col id="spinner" sm="12" [hidden]="spin">
+              <c-spinner style="margin-top: 40%;" color="secondary"></c-spinner>
+            </c-col>
+            
             <c-col sm="12" *ngIf="singleImage">
               <div class="row rotate-img">
                 <div class='col-sm-6' (click)="rotateImage()"><span id="rotate">Rotate Image</span></div>
-                <div class='col-sm-6'><span id="zoom" style="float: right;" [cModalToggle]="modalXl.id" cButton>Zoom Image</span></div>
+                <div class='col-sm-6'><span id="zoom" style="float: right;" [cModalToggle]="modalXl.id">Zoom Image</span></div>
               </div>
             </c-col>
             <c-card  *ngIf="singleImage">
               <img cCardImg="top" src="{{singleImage}}" class="archive-img" alt="" />
             </c-card>
           </div>
-      </fieldset>
-      </c-col>
-    </c-row>
+      </c-col> -->
+    <!-- </c-row> -->
 
     <c-modal #modalXl id="modalXl" size="lg">
       <c-modal-body >
